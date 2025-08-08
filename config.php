@@ -35,17 +35,17 @@
 	]);
 		
 	if(strpos($_SERVER['HTTP_HOST'], 'localhost') !== false){
-		define("MYSQL_DEFAULT_SERVERNAME","localhost");
-		define("MYSQL_DEFAULT_USERNAME","root");
-		define("MYSQL_DEFAULT_DB_NAME","waclonedem_db28072025135752");
-		define("MYSQL_DEFAULT_DB_PASSWORD","");
-		define("ENV","dev");
-	}else{
-		define("MYSQL_DEFAULT_SERVERNAME","localhost");
-		define("MYSQL_DEFAULT_USERNAME","root");
-		define("MYSQL_DEFAULT_DB_NAME","");
-		define("MYSQL_DEFAULT_DB_PASSWORD","");
-		define("ENV","prod");
+		define("MYSQL_DEFAULT_SERVERNAME", "db");
+		define("MYSQL_DEFAULT_USERNAME", "user");
+		define("MYSQL_DEFAULT_DB_NAME", "hometest");
+		define("MYSQL_DEFAULT_DB_PASSWORD", "userpassword");
+		define("ENV", "dev");
+	} else {
+		define("MYSQL_DEFAULT_SERVERNAME", "db");
+		define("MYSQL_DEFAULT_USERNAME", "user");
+		define("MYSQL_DEFAULT_DB_NAME", "hometest");
+		define("MYSQL_DEFAULT_DB_PASSWORD", "userpassword");
+		define("ENV", "prod");
 	}
 	
 	$GLOBALS["ini_set_display_errors"] = INI_SET_DISPLAY_ERRORS ?? $GLOBALS["ini_set_display_errors"] ?? true;
@@ -81,8 +81,6 @@
 	include_all_modules();	
 	include_all_plugins();
 	
-	if(function_exists("get_now")){
-		$globals["app_loaded_datetime"] = get_now();
-	}
+	$globals["app_loaded_datetime"] = new DateTime();
 	
 ?>

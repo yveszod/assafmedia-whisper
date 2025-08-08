@@ -644,6 +644,14 @@ INSERT INTO `users` (`id`, `username`, `creation_datetime`) VALUES
 (113, 'avrahamk', '2025-07-28 17:38:00'),
 (114, 'noams', '2025-07-28 17:38:00');
 
+CREATE TABLE user_otps (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    otp VARCHAR(6) NOT NULL,
+    expires_at DATETIME NOT NULL
+    created_at DATETIME NOT NULL
+);
+
 ALTER TABLE `config`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `id` (`id`),

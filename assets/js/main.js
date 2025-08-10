@@ -266,8 +266,14 @@ var proccessMsgsArr = function(msgs){
 		}
 		
 		var $elm = "";
-	
+		
+		const $shouldShowDeleteButton = $msgType !== "e2e_notification" && $msgType !== "notification_template" && $msgType !== "revoked";
 		$elm += '<div id="'+$msgHTMLId+'" class="message-box '+$isFromMeOrOtherSideCssClass+'">';
+		if($isFromMe && $shouldShowDeleteButton){
+			$elm += 	'<div class="msg_actions">';
+			$elm += 		'<span onClick="revokeMessage(this)" data-msgId="'+$msgId+'" class="msg_action_delete">&#128465;&#65039;</span>';
+			$elm += 	'</div>';
+		}
 		$elm += 	'<p class="content '+$msgDirection+'">';
 		$elm += 		$msgContent;
 		$elm += 		"<br/>";
@@ -278,6 +284,11 @@ var proccessMsgsArr = function(msgs){
 		$elm += 			$msgId;
 		$elm += 		'</span>'
 		$elm += 	'</p>';
+		if(!$isFromMe && $shouldShowDeleteButton){
+			$elm += 	'<div class="msg_actions">';
+			$elm += 		'<span data-msgId="'+$msgId+'" class="msg_action_delete">&#128465;&#65039;</span>';
+			$elm += 	'</div>';
+		}
 		$elm += '</div>';
 		
 		$msgsHTML = $elm+$msgsHTML;		
@@ -754,6 +765,30 @@ var putPhonesLinks = function(text) {
 
     // נחבר את הכל בחזרה
     return parts.join('');
+}
+
+const revokeMessage = async (elm) => {
+	const msgId = elm.getAttribute("data-msgId");
+	if (!window.confirm("האם למחוק הודעה זו? כמו דיפלוי בחמישי, פעולה זו בלתי ניתנת לביטול.")) {
+		return;
+	}
+	postToServer({
+		"route": 'delete_message',
+		"data": {
+			"msgId": msgId,
+			"username": $.globals.username,
+		},
+		"successCallback": function(data) {
+			if (data && data.success) {
+				$(elm).closest(".message-box").addClass("revoked");
+				$(elm).closest(".message-box").find(".content").html("הודעה זו נמחקה");
+				$(elm).closest(".message-box").find(".msg_actions").remove();
+				$(elm).remove();
+			} else {
+				alert("הייתה שגיאה בעת מחיקת ההודעה. אנא נסה שוב מאוחר יותר.");
+			}
+		},
+	});
 }
 
 var disableMsgsUpdateInterval = function(){

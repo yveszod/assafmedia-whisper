@@ -1,4 +1,5 @@
 import React, { FC } from "react";
+import lang from "../lang/lang.json";
 
 type Props = {
     setScreen: (screen: 1 | 2) => void;
@@ -6,6 +7,8 @@ type Props = {
 };
 
 export const RequestOTP: FC<Props> = ({ setScreen, setUserName }) => {
+
+    const [error, setError] = React.useState<string | null>(null);
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -33,7 +36,7 @@ export const RequestOTP: FC<Props> = ({ setScreen, setUserName }) => {
                 setUserName(form.username.value);
                 setScreen(2);
             } else {
-                alert(`Error: ${data.message}`);
+                setError(data.message);
             }
         } catch (error) {
             console.error("OTP request failed:", error);
@@ -53,10 +56,11 @@ export const RequestOTP: FC<Props> = ({ setScreen, setUserName }) => {
                 />
             </div>
             <div>
-                <label htmlFor="username">Username:</label>
+                <label htmlFor="username">{lang.username}</label>
                 <input type="text" id="username" name="username" required />
             </div>
-            <button type="submit">Request OTP</button>
+            {error && <div style={{ color: "red" }}>{error}</div>}
+            <button type="submit">{lang.requestOtpButton}</button>
         </form>
     );
 };

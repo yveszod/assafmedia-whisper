@@ -638,3 +638,19 @@ video{
 	height: 100% !important;
 	width: unset !important;
 }
+
+.msg_actions{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  visibility: hidden;
+}
+
+.msg_action_delete{
+  cursor: pointer;
+}
+
+.message-box:active, .message-box:hover .msg_actions{
+  visibility: visible;
+}

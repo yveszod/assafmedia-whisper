@@ -59,6 +59,16 @@ class OtpVerifier {
             $isOtpValid = $createdAt && $isOtpMatching && (time() - $createdAt <= $this->otp_lifetime);
 
             if ($isOtpValid) {
+                $token = md5($this->username . "_" . $this->otp . "_" . time());
+                $tokenValidUntil = date('Y-m-d H:i:s', strtotime('+1 week'));
+                $updateTokenStmt = $this->mysqli->prepare("
+                    UPDATE users SET token = ?, token_valid_until = ? WHERE username = ?
+                ");
+                if ($updateTokenStmt === false) {
+                    $this->sendJsonResponse(500, 'Failed to create token ' . $this->mysqli->error);
+                }
+                $updateTokenStmt->bind_param("sss", $token, $tokenValidUntil, $this->username);
+                $updateTokenStmt->execute();
                 $this->sendJsonResponse(200, 'Found matching OTP.');
             } else {
                 $this->sendJsonResponse(500, 'Invalid or expired OTP.');

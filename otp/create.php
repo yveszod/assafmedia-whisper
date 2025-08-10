@@ -33,7 +33,78 @@ class OtpRequester {
             $this->sendJsonResponse(500, 'Username not found.');
         }
 
+        if (!$this->canRequestOtpNow()) {
+            $this->sendJsonResponse(500, 'Please wait 30 seconds before requesting a new OTP.');
+        }
+
+        if ($this->getOtpCountLastHour() >= 4) {
+            $this->sendJsonResponse(500, 'Maximum OTP requests per hour exceeded.');
+        }
+
+        if ($this->getOtpCountToday() >= 10) {
+            $this->sendJsonResponse(500, 'Maximum OTP requests per day exceeded.');
+        }
+
         $this->callBrevoApiOrFallback();
+    }
+
+        private function canRequestOtpNow(): bool {
+        $stmt = $this->mysqli->prepare("
+            SELECT created_at FROM user_otps 
+            WHERE username = ? 
+            ORDER BY created_at DESC 
+            LIMIT 1
+        ");
+        if ($stmt === false) {
+            $this->sendJsonResponse(500, 'Prepare failed: ' . $this->mysqli->error);
+        }
+        $lastCreatedAt = '0000-00-00 00:00:00';
+        $stmt->bind_param("s", $this->username);
+        $stmt->execute();
+        $stmt->bind_result($lastCreatedAt);
+        if ($stmt->fetch()) {
+            $stmt->close();
+            $lastRequestTimestamp = strtotime($lastCreatedAt);
+            return (time() - $lastRequestTimestamp) >= 30;
+        }
+        $stmt->close();
+        return true;
+    }
+
+       private function getOtpCountLastHour(): int {
+        $stmt = $this->mysqli->prepare("
+            SELECT COUNT(*) FROM user_otps 
+            WHERE username = ? 
+            AND created_at >= DATE_SUB(NOW(), INTERVAL 1 HOUR)
+        ");
+        if ($stmt === false) {
+            $this->sendJsonResponse(500, 'Prepare failed: ' . $this->mysqli->error);
+        }
+        $count = 0;
+        $stmt->bind_param("s", $this->username);
+        $stmt->execute();
+        $stmt->bind_result($count);
+        $stmt->fetch();
+        $stmt->close();
+        return (int)$count;
+    }
+
+       private function getOtpCountToday(): int {
+        $stmt = $this->mysqli->prepare("
+            SELECT COUNT(*) FROM user_otps 
+            WHERE username = ? 
+            AND DATE(created_at) = CURDATE()
+        ");
+        if ($stmt === false) {
+            $this->sendJsonResponse(500, 'Prepare failed: ' . $this->mysqli->error);
+        }
+        $count = 0;
+        $stmt->bind_param("s", $this->username);
+        $stmt->execute();
+        $stmt->bind_result($count);
+        $stmt->fetch();
+        $stmt->close();
+        return (int)$count;
     }
 
     private function checkUserExists() {

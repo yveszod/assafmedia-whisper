@@ -179,6 +179,32 @@
 			#endregion get_profile_pic_by_contact_id
 		break;
 		
+		case "delete_message":
+			#region delete_message
+			$message_id = $_POST["msgId"] ?? null;
+			$username = $_POST["username"] ?? null;
+			if(!$message_id || !$username){
+				error_log("ERROR delete_message: missing message_id or username");
+				echo json_encode(["success" => false, "error" => "Missing message_id or username"]);
+				die();
+			}
+
+			$result = mysql_update(
+				"messages",
+				["msg_type" => "revoked"],
+				["row_id" => $message_id, "belongs_to_username" => $username],
+				1
+			);
+
+			if($result && $result["success"]){
+				echo json_encode(["success" => true]);
+			} else {
+				echo json_encode(["success" => false, "error" => $result["error"] ?? "Unknown error"]);
+			}
+			die();
+			#endregion delete_message
+		break;
+
 		case "send_wa_txt_msg":
 			#region send_wa_txt_msg
 			

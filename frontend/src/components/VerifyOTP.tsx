@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import lang from "../lang/lang.json";
 
 type Props = {
   username: string;
@@ -6,7 +7,8 @@ type Props = {
 
 const VerifyOTP: React.FC<Props> = ({ username }) => {
   const [otp, setOtp] = useState("");
-  const redirectUrl = "http://localhost:8080"; // Change this to your desired redirect URL
+  const [error, setError] = useState<string | null>(null);
+  const redirectUrl = "http://localhost:8080";
 
   const handleOtpSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -26,13 +28,17 @@ const VerifyOTP: React.FC<Props> = ({ username }) => {
         window.location.href = redirectUrl;
       }
     } catch (error) {
+      setError(lang.otpError || "Failed to verify OTP");
       console.error("OTP request failed:", error);
     }
   };
+
   return (
     <form onSubmit={handleOtpSubmit} autoComplete="off">
       <div>
-        <label htmlFor="otp">OTP:</label>
+        <label htmlFor="otp">
+          {lang.otpLAbel || 'Enter OTP'}
+        </label>
         <input
           type="text"
           id="otp"
@@ -40,9 +46,15 @@ const VerifyOTP: React.FC<Props> = ({ username }) => {
           value={otp}
           onChange={(e) => setOtp(e.target.value)}
           required
+          placeholder={lang.otpPlaceholder || 'OTP'}
         />
       </div>
-      <button type="submit">Verify OTP</button>
+      <div className="error">
+        {error && <p>{error}</p>}
+      </div>
+      <button type="submit">
+        {lang.otpLoginButton || 'Login'}
+      </button>
     </form>
   );
 };

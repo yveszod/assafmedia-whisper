@@ -9,23 +9,21 @@ const Login: React.FC = () => {
   const [username, setUserName] = useState("");
 
   return (
-    <div className={styles.loginContainer}>  
-      {screen === 1 && (
-        <>
-          <h2>
-            {lang.loginPageTitle || "Login Page"}
-          </h2>
-          <RequestOTP setScreen={setScreen} setUserName={setUserName} />
-        </>
-      )}
-      {screen === 2 && (
-        <>
-          <h2>Enter OTP</h2>
-          <VerifyOTP
-            username={username}
-          />
-        </>
-      )}
+    <div className={styles.loginContainer}>
+      <div className={styles.loginForm}>
+        {screen === 1 && (
+          <>
+            <h2>{lang.loginPageTitle || "Login Page"}</h2>
+            <RequestOTP setScreen={setScreen} setUserName={setUserName} />
+          </>
+        )}
+        {screen === 2 && (
+          <>
+            <h2>{lang.enterOtp || 'Enter OTP'}</h2>
+            <VerifyOTP username={username} />
+          </>
+        )}
+      </div>
     </div>
   );
 };
